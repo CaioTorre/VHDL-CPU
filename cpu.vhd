@@ -11,6 +11,7 @@ entity cpu is
 	 reg3in, reg3out: in std_logic;
 	 regAin: in std_logic;
 	 regGin, regGout: in std_logic;
+	 regTin, regTout: in std_logic;
 	 imedIn: in std_logic;
 	 busview: out std_logic_vector(0 to 15));
 end cpu;
@@ -58,6 +59,19 @@ architecture behavior of cpu is
 			op:	in std_logic_vector(0 to 1);
 			ula_out: out std_logic_vector(0 to 15));
 	end component;
+	
+	component ctrlunit
+		port (instruction: in std_logic_vector(0 to 15);
+			clock: in std_logic;
+			reg0in, reg0out: out std_logic;
+			reg1in, reg1out: out std_logic;
+			reg2in, reg2out: out std_logic;
+			reg3in, reg3out: out std_logic;
+			regAin: out std_logic;
+			regGin, regGout: out std_logic;
+			regTin, regTout: out std_logic;
+			imedIn: out std_logic);
+	end component;
 begin
 	busview <= mbus;
 	imed: tristate port map ("00000000" & instruction(8 to 15), imedIn, mbus);
@@ -68,6 +82,8 @@ begin
 
 	regA: register_16 port map (mbus, clock, regAin, master_reset, regAtoULA);
 	regG: triregister port map (ULAtoRegG, clock, regGin, regGout, master_reset, mbus);
+	regT: triregister port map (mbus, clock, regTin, regTout, master_reset, mbus);
 	alu: ula port map (regAtoULA, mbus, ALUOp, ULAtoRegG);
 	
+	unit: ctrlunit port map (instruction, clock, reg0in, reg0out, reg1in, reg1out, reg2in, reg2out, reg3in, reg3out, regAin, regGin, regGout, regTin, regTout, imedIn);
 end behavior;
