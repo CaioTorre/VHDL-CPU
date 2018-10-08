@@ -22,6 +22,8 @@ begin
 				ula_out <= regA and regB;
 			when "11" =>
 				ula_out <= regA or regB;
+			when others =>
+				ula_out <= "0000000000000000";
 		end case;
 	end process;
 end alu;

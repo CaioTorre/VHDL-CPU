@@ -84,6 +84,8 @@ begin
 							reg2out <= '1';
 						when "11" =>
 							reg3out <= '1';
+						when others =>
+							state <= waiting;
 					end case;
 					case r1 is
 						when "00" =>
@@ -94,6 +96,8 @@ begin
 							reg2in <= '1';
 						when "11" =>
 							reg3in <= '1';
+						when others =>
+							state <= waiting;
 					end case;
 					state <= waiting;
 				when movi0 => --============= MOV Ri, Imed =============
@@ -107,6 +111,8 @@ begin
 							reg2in <= '1';
 						when "11" =>
 							reg3in <= '1';
+						when others =>
+							state <= waiting;
 					end case;
 					state <= waiting;
 				when xchg0 => --============= XCHG Ri, Rj =============
@@ -120,6 +126,8 @@ begin
 							reg2out <= '1';
 						when "11" =>
 							reg3out <= '1';
+						when others =>
+							state <= waiting;
 					end case;
 					state <= xchg1;
 				when xchg1 =>
@@ -137,6 +145,8 @@ begin
 						when "11" =>
 							reg3out <= '0';
 							reg3in <= '1';
+						when others =>
+							state <= waiting;
 					end case;
 					case r2 is 
 						when "00" =>
@@ -147,6 +157,8 @@ begin
 							reg2out <= '1';
 						when "11" =>
 							reg3out <= '1';
+						when others =>
+							state <= waiting;
 					end case;
 					state <= xchg2;
 				when xchg2 =>
@@ -164,10 +176,13 @@ begin
 						when "11" =>
 							reg3out <= '0';
 							reg3in <= '1';
+						when others =>
+							state <= waiting;
 					end case;
 					state <= waiting;
 				when others =>
 					state <= waiting; --WORK IN PROGRESS
 			end case;
-		end if
+		end if;
 	end process;
+end ctrl;
