@@ -42,7 +42,7 @@ architecture behavior of cpu is
 	 
 	signal regAtoULA: std_logic_vector(0 to 15);
 	signal ULAtoRegG: std_logic_vector(0 to 15);
-	signal ALUOp: std_logic_vector(0 to 1);
+	signal ALUOp: std_logic_vector(0 to 2);
 	signal master_reset: std_logic;
 	
 	component register_16
@@ -71,7 +71,7 @@ architecture behavior of cpu is
 	component ula
 		port (regA: in std_logic_vector(0 to 15);
 			regB: in std_logic_vector(0 to 15);
-			op:	in std_logic_vector(0 to 1);
+			op:	in std_logic_vector(0 to 2);
 			ula_out: out std_logic_vector(0 to 15));
 	end component;
 	
@@ -85,7 +85,8 @@ architecture behavior of cpu is
 			regAin: out std_logic;
 			regGin, regGout: out std_logic;
 			regTin, regTout: out std_logic;
-			imedIn: out std_logic);
+			imedIn: out std_logic;
+			ALUOp:  out std_logic_vector(0 to 2));
 	end component;
 begin
 	busview <= mbus;
@@ -94,7 +95,15 @@ begin
 	rg2view <= r2insid;
 	rg3view <= r3insid;
 	
-	immedi <= "00000000" & instruction(8 to 15);
+	process (instruction)
+	begin
+		if (instruction(8) = '0') then 
+			immedi <= "00000000" & instruction(8 to 15);
+		else 
+			immedi <= "11111111" & instruction(8 to 15);
+		end if;
+	end process;
+	--immedi <= "00000000" & instruction(8 to 15);
 	imed: tristate port map (immedi, imedIn, mbus);
 	
 	reg0: register_16 port map (mbus, clock, reg0in, master_reset, r0insid);
@@ -116,5 +125,5 @@ begin
 	regT: triregister port map (mbus, clock, regTin, regTout, master_reset, mbus);
 	alu: ula port map (regAtoULA, mbus, ALUOp, ULAtoRegG);
 	
-	unit: ctrlunit port map (instruction, clock, reg0in, reg0out, reg1in, reg1out, reg2in, reg2out, reg3in, reg3out, regAin, regGin, regGout, regTin, regTout, imedIn);
+	unit: ctrlunit port map (instruction, clock, reg0in, reg0out, reg1in, reg1out, reg2in, reg2out, reg3in, reg3out, regAin, regGin, regGout, regTin, regTout, imedIn, ALUOp);
 end behavior;

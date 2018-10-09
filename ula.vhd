@@ -5,7 +5,7 @@ use ieee.std_logic_unsigned.all;
 entity ula is 
 	port (regA: in std_logic_vector(0 to 15);
 			regB: in std_logic_vector(0 to 15);
-			op:	in std_logic_vector(0 to 1);
+			op:	in std_logic_vector(0 to 2);
 			ula_out: out std_logic_vector(0 to 15));
 end ula;
 
@@ -14,13 +14,13 @@ begin
 	process(regA, regB, op)
 	begin
 		case op is
-			when "00" =>
+			when "000" =>
 				ula_out <= regA + regB;
-			when "01" =>
+			when "001" =>
 				ula_out <= regA - regB;
-			when "10" =>
+			when "010" =>
 				ula_out <= regA and regB;
-			when "11" =>
+			when "011" =>
 				ula_out <= regA or regB;
 			when others =>
 				ula_out <= "0000000000000000";
