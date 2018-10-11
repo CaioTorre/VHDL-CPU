@@ -17,7 +17,7 @@ entity ctrlunit is
 end ctrlunit;
 
 architecture ctrl of ctrlunit is
-	type states is (waiting, mov0, movi0, xchg0, xchg1, xchg2, add0, add1, add2, addi0, addi1, addi2, sub0, subi0, and0, andi0, or0, ori0, shl0, shr0);
+	type states is (waiting, mov0, movi0, xchg0, xchg1, xchg2, arith0, arith1, arith2);
 	signal state: states := waiting;
 	signal opcode: std_logic_vector(0 to 3);
 	signal r1, r2, r3: std_logic_vector(0 to 1);
@@ -46,248 +46,153 @@ begin
 					regTout <= '0';
 					imedIn <= '0';
 					case opcode is
-						when "0000" =>
-							state <= mov0;
-						when "0001" =>
-							state <= movi0;
-						when "0010" =>
-							state <= xchg0;
-						when "0011" => 
-							state <= add0;
-						when "0100" =>
-							state <= addi0;
-						when "0101" =>
-							state <= sub0;
-						when "0110" =>
-							state <= subi0;
-						when "0111" =>
-							state <= and0;
-						when "1000" =>
-							state <= andi0;
-						when "1001" =>
-							state <= or0;
-						when "1010" =>
-							state <= ori0;
-						when "1011" =>
-							state <= shl0;
-						when "1100" =>
-							state <= shr0;
-						when others =>
-							state <= waiting;
+						when "0000" => state <= mov0;
+						when "0001" => state <= movi0;
+						when "0010" => state <= xchg0;
+						when "0011" => state <= arith0; -- SLL
+						when "0100" => state <= arith0; -- SRL
+						when "0101" => state <= arith0; -- ADDI
+						when "0110" => state <= arith0; -- SUBI
+						when "0111" => state <= arith0; -- ANDI
+						when "1000" => state <= arith0; -- ORI
+						when "1001" => state <= arith0; -- ADD
+						when "1010" => state <= arith0; -- SUB
+						when "1011" => state <= arith0; -- AND
+						when "1100" => state <= arith0; -- OR
+						when others => state <= waiting;
 					end case;
 				when mov0 => --============= MOV Ri, Rj =============
 					case r2 is
-						when "00" =>
-							reg0out <= '1';
-						when "01" =>
-							reg1out <= '1';
-						when "10" =>
-							reg2out <= '1';
-						when "11" =>
-							reg3out <= '1';
-						when others =>
-							state <= waiting;
+						when "00" => reg0out <= '1';
+						when "01" => reg1out <= '1';
+						when "10" => reg2out <= '1';
+						when "11" => reg3out <= '1';
+						when others => state <= waiting;
 					end case;
 					case r1 is
-						when "00" =>
-							reg0in <= '1';
-						when "01" =>
-							reg1in <= '1';
-						when "10" =>
-							reg2in <= '1';
-						when "11" =>
-							reg3in <= '1';
-						when others =>
-							state <= waiting;
+						when "00" => reg0in <= '1';
+						when "01" => reg1in <= '1';
+						when "10" => reg2in <= '1';
+						when "11" => reg3in <= '1';
+						when others => state <= waiting;
 					end case;
 					state <= waiting;
 				when movi0 => --============= MOV Ri, Imed =============
 					imedIn <= '1';
 					case r1 is 
-						when "00" =>
-							reg0in <= '1';
-						when "01" =>
-							reg1in <= '1';
-						when "10" =>
-							reg2in <= '1';
-						when "11" =>
-							reg3in <= '1';
-						when others =>
-							state <= waiting;
+						when "00" => reg0in <= '1';
+						when "01" => reg1in <= '1';
+						when "10" => reg2in <= '1';
+						when "11" => reg3in <= '1';
+						when others => state <= waiting;
 					end case;
 					state <= waiting;
 				when xchg0 => --============= XCHG Ri, Rj =============
 					regTin <= '1'; 
 					case r1 is 
-						when "00" =>
-							reg0out <= '1';
-						when "01" =>
-							reg1out <= '1';
-						when "10" =>
-							reg2out <= '1';
-						when "11" =>
-							reg3out <= '1';
-						when others =>
-							state <= waiting;
+						when "00" => reg0out <= '1';
+						when "01" => reg1out <= '1';
+						when "10" => reg2out <= '1';
+						when "11" => reg3out <= '1';
+						when others => state <= waiting;
 					end case;
 					state <= xchg1;
 				when xchg1 =>
 					regTin <= '0';
+					reg0out <= '0';
+					reg1out <= '0';
+					reg2out <= '0';
+					reg3out <= '0';
 					case r1 is 
-						when "00" =>
-							reg0out <= '0';
-							reg0in <= '1';
-						when "01" =>
-							reg1out <= '0';
-							reg1in <= '1';
-						when "10" =>
-							reg2out <= '0';
-							reg2in <= '1';
-						when "11" =>
-							reg3out <= '0';
-							reg3in <= '1';
-						when others =>
-							state <= waiting;
+						when "00" => reg0in <= '1';
+						when "01" => reg1in <= '1';
+						when "10" => reg2in <= '1';
+						when "11" => reg3in <= '1';
+						when others => state <= waiting;
 					end case;
 					case r2 is 
-						when "00" =>
-							reg0out <= '1';
-						when "01" =>
-							reg1out <= '1';
-						when "10" =>
-							reg2out <= '1';
-						when "11" =>
-							reg3out <= '1';
-						when others =>
-							state <= waiting;
+						when "00" => reg0out <= '1';
+						when "01" => reg1out <= '1';
+						when "10" => reg2out <= '1';
+						when "11" => reg3out <= '1';
+						when others => state <= waiting;
 					end case;
 					state <= xchg2;
 				when xchg2 =>
 					regTout <= '1';
 					case r1 is 
-						when "00" =>
-							reg0in <= '0';
-						when "01" =>
-							reg1in <= '0';
-						when "10" =>
-							reg2in <= '0';
-						when "11" =>
-							reg3in <= '0';
-						when others =>
-							state <= waiting;
+						when "00" => reg0in <= '0';
+						when "01" => reg1in <= '0';
+						when "10" => reg2in <= '0';
+						when "11" => reg3in <= '0';
+						when others => state <= waiting;
 					end case;
+					reg0out <= '0';
+					reg1out <= '0';
+					reg2out <= '0';
+					reg3out <= '0';
 					case r2 is 
-						when "00" =>
-							reg0out <= '0';
-							reg0in <= '1';
-						when "01" =>
-							reg1out <= '0';
-							reg1in <= '1';
-						when "10" =>
-							reg2out <= '0';
-							reg2in <= '1';
-						when "11" =>
-							reg3out <= '0';
-							reg3in <= '1';
-						when others =>
-							state <= waiting;
+						when "00" => reg0in <= '1';
+						when "01" => reg1in <= '1';
+						when "10" => reg2in <= '1';
+						when "11" => reg3in <= '1';
+						when others => state <= waiting;
 					end case;
 					state <= waiting;
-				when add0 => --============= ADD Ri, Rj, Rk =============
+				when arith0 => --============= ARITMETICAS =============
 					regAin <= '1';
 					case r2 is 
-						when "00" =>
-							reg0out <= '1';
-						when "01" =>
-							reg1out <= '1';
-						when "10" =>
-							reg2out <= '1';
-						when "11" =>
-							reg3out <= '1';
-						when others =>
-							state <= waiting;
+						when "00" => reg0out <= '1';
+						when "01" => reg1out <= '1';
+						when "10" => reg2out <= '1';
+						when "11" => reg3out <= '1';
+						when others => state <= waiting;
 					end case;
-					state <= add1;
-				when add1 => 
+					state <= arith1;
+				when arith1 => 
 					regAin <= '0';
 					reg0out <= '0';
 					reg1out <= '0';
 					reg2out <= '0';
 					reg3out <= '0';
-					case r3 is 
-						when "00" =>
-							reg0out <= '1';
-						when "01" =>
-							reg1out <= '1';
-						when "10" =>
-							reg2out <= '1';
-						when "11" =>
-							reg3out <= '1';
-						when others =>
-							state <= waiting;
+					if (opcode > "1000") then
+						case r3 is 
+							when "00" => reg0out <= '1';
+							when "01" => reg1out <= '1';
+							when "10" => reg2out <= '1';
+							when "11" => reg3out <= '1';
+							when others => state <= waiting;
+						end case;
+					else 
+						imedIn <= '1';
+					end if;
+					case opcode is 
+						when "0011" => ALUOp <= "100";
+						when "0100" => ALUOp <= "101";
+						when "0101" => ALUOp <= "000";
+						when "1001" => ALUOp <= "000";
+						when "0110" => ALUOp <= "001";
+						when "1010" => ALUOp <= "001";
+						when "0111" => ALUOp <= "010";
+						when "1011" => ALUOp <= "010";
+						when "1000" => ALUOp <= "011";
+						when "1100" => ALUOp <= "011";
+						when others => ALUOp <= "UUU";
 					end case;
-					ALUOp <= "000";
 					regGin <= '1';
-					state <= add2;
-				when add2 =>
+					state <= arith2;
+				when arith2 =>
 					reg0out <= '0';
 					reg1out <= '0';
 					reg2out <= '0';
 					reg3out <= '0';
 					regGin <= '0';
 					case r1 is 
-						when "00" =>
-							reg0in <= '1';
-						when "01" =>
-							reg1in <= '1';
-						when "10" =>
-							reg2in <= '1';
-						when "11" =>
-							reg3in <= '1';
-						when others =>
-							state <= waiting;
-					end case;
-					regGout <= '1';
-					state <= waiting;
-				when addi0 => --============= ADDI Ri, Rj, Imed =============
-					regAin <= '1';
-					case r2 is 
-						when "00" =>
-							reg0out <= '1';
-						when "01" =>
-							reg1out <= '1';
-						when "10" =>
-							reg2out <= '1';
-						when "11" =>
-							reg3out <= '1';
-						when others =>
-							state <= waiting;
-					end case;
-					state <= addi1;
-				when addi1 =>
-					regAin <= '0';
-					reg0out <= '0';
-					reg1out <= '0';
-					reg2out <= '0';
-					reg3out <= '0';
-					imedIn <= '1';
-					ALUOp <= "000";
-					regGin <= '1';
-					state <= addi2;
-				when addi2 =>
-					imedIn <= '0';
-					regGin <= '0';
-					case r1 is 
-						when "00" =>
-							reg0in <= '1';
-						when "01" =>
-							reg1in <= '1';
-						when "10" =>
-							reg2in <= '1';
-						when "11" =>
-							reg3in <= '1';
-						when others =>
-							state <= waiting;
+						when "00" => reg0in <= '1';
+						when "01" => reg1in <= '1';
+						when "10" => reg2in <= '1';
+						when "11" => reg3in <= '1';
+						when others => state <= waiting;
 					end case;
 					regGout <= '1';
 					state <= waiting;
