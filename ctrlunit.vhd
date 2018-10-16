@@ -187,6 +187,7 @@ begin
 					reg2out <= '0';
 					reg3out <= '0';
 					regGin <= '0';
+					imedIn <= '0';
 					case r1 is 
 						when "00" => reg0in <= '1';
 						when "01" => reg1in <= '1';
