@@ -20,8 +20,8 @@ begin
 			when "010" => ula_out <= regA and regB;
 			when "011" => ula_out <= regA or regB;
 			--when "100" => ula_out <= std_logic_vector(unsigned(regA) sll to_integer(unsigned(regB)));
-			when "100" => ula_out <= std_logic_vector(unsigned(regA) sll 1);
-			when "101" => ula_out <= std_logic_vector(unsigned(regA) srl to_integer(unsigned(regB)));
+			when "100" => ula_out <= to_stdlogicvector(to_bitvector(regA) sll to_integer(unsigned(regB)));
+			when "101" => ula_out <= to_stdlogicvector(to_bitvector(regA) srl to_integer(unsigned(regB)));
 			when others => ula_out <= "0000000000000000";
 		end case;
 	end process;
